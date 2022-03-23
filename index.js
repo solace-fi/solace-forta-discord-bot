@@ -8,7 +8,7 @@ const client = new Client({ intents: [Intents.FLAGS.GUILDS] });
 // When the client is ready, run this code (only once)
 client.once('ready', (client) => {
 	console.log(`Ready! Logged in as ${client.user.tag}`);
-	client.channels.cache.get(process.env.CHANNEL_ID).send('Hello there!');
+	// client.channels.cache.get(process.env.CHANNEL_ID).send('Hello there!');
 
 	// Anonymous async function to query Forta API, and parse positive results into Discord messages
 	(async () => {
