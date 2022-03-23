@@ -75,9 +75,9 @@ async function forta_api_request() {
     const alerts = resp.data.data.alerts.alerts
     return alerts
     
-    } catch(e) {
-        console.error(e)
-    }
+  } catch(e) {
+    console.error(e)
+  }
 }
 
 // Parse successful Forta API query into Discord embed message
