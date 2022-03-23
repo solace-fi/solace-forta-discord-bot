@@ -91,15 +91,15 @@ function parse_forta_response(forta_response, client) {
 		  const severity = element.severity
 
 		  const embed = new MessageEmbed()
-		  .setTitle(`${severity} ALERT`)
-		  .setDescription(`${alert_description}`)
-		  .setURL(`https://etherscan.io/tx/${alert_tx_hash}`)
-		  .setThumbnail('https://forta.org/assets/img/forta_white.png')
-		  .setColor("#ff0000")
-		  .setTimestamp()
-		  .addFields(
-			{ name: '\u200B', value: `https://etherscan.io/tx/${alert_tx_hash}` },
-		)
+		    .setTitle(`${severity} ALERT`)
+		    .setDescription(`${alert_description}`)
+		    .setURL(`https://etherscan.io/tx/${alert_tx_hash}`)
+		    .setThumbnail('https://forta.org/assets/img/forta_white.png')
+		    .setColor("#ff0000")
+		    .setTimestamp()
+		    .addFields(
+			    { name: '\u200B', value: `https://etherscan.io/tx/${alert_tx_hash}` },
+		    )
 
 		  client.channels.cache.get(process.env.CHANNEL_ID).send({ embeds: [embed] })
 		});
