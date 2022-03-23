@@ -41,31 +41,46 @@ const input = `{
 
 exports.handler = async (event) => {
   try {
-    console.log("Running Forta-Discord Agent...");
-    // Create a new client instance
-    const client = new Client({ intents: [Intents.FLAGS.GUILDS] });
+    const promise = new Promise(function(resolve, reject) {
+      console.log("Running Forta-Discord Agent...");
+      
+      // Create a new client instance
+      const client = new Client({ intents: [Intents.FLAGS.GUILDS] });
 
-    // When the client is ready, run this code (only once)
-    client.once("ready", (client) => {
-      console.log(`Ready! Logged in as ${client.user.tag}`);
-      // client.channels.cache.get(process.env.CHANNEL_ID).send('Hello there!');
+      // Login to Discord with your client's token
+      client.login(process.env.TOKEN);
 
-      // Anonymous async function to query Forta API, and parse positive results into Discord messages
-      (async () => {
-        const forta_response = await forta_api_request();
-        parse_forta_response(forta_response, client);
-      })();
-    });
+      // When the client is ready, run this code (only once)
+      client.once("ready", (client) => {
+        console.log(`Ready! Logged in as ${client.user.tag}`);
+        client.channels.cache.get(process.env.CHANNEL_ID).send('Hello there!');
 
-    // Login to Discord with your client's token
-    client.login(process.env.TOKEN);
-    console.log("Running Forta-Discord Agent has been finished.");
+        // Anonymous async function to query Forta API, and parse positive results into Discord messages
+        (async () => {
+          try {
+            const forta_response = await forta_api_request();
+            parse_forta_response(forta_response, client);
 
-    const response = {
-      statusCode: 200,
-      body: JSON.stringify("The Forta-Discord Bot ran successfully"),
-    };
-    return response;
+            const response = {
+              statusCode: 200,
+              body: JSON.stringify("The Forta-Discord Bot ran successfully"),
+            };
+            
+            console.log("Running Forta-Discord Agent has been finished.");
+
+            resolve(response)
+          } catch(e) {
+            console.error(e);
+            reject(e);
+          }
+
+        })();
+      });
+
+    })
+
+
+    return promise;
   } catch (e) {
     console.log("The error has been occurred while running Forta-Discord Agent.");
     console.error(e);
@@ -121,8 +136,10 @@ function parse_forta_response(forta_response, client) {
 
       client.channels.cache.get(process.env.CHANNEL_ID).send({ embeds: [embed] });
     });
+
   } else {
     // client.channels.cache.get(process.env.CHANNEL_ID).send("NO NEW FORTA ALERTS!")
     console.log("NO NEW FORTA ALERTS");
   }
+
 }
