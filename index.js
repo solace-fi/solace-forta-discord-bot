@@ -1,24 +1,6 @@
-const { Client, Intents, MessageEmbed } = require('discord.js');
-const axios = require("axios")
-require('dotenv').config()
-
-// Create a new client instance
-const client = new Client({ intents: [Intents.FLAGS.GUILDS] });
-
-// When the client is ready, run this code (only once)
-client.once('ready', (client) => {
-	console.log(`Ready! Logged in as ${client.user.tag}`);
-	// client.channels.cache.get(process.env.CHANNEL_ID).send('Hello there!');
-
-	// Anonymous async function to query Forta API, and parse positive results into Discord messages
-	(async () => {
-		const forta_response = await forta_api_request();
-		parse_forta_response(forta_response, client)
-	})();	
-});
-
-// Login to Discord with your client's token
-client.login(process.env.TOKEN);
+const { Client, Intents, MessageEmbed } = require("discord.js");
+const axios = require("axios");
+require("dotenv").config();
 
 // Forta GraphQL API request
 const query = `query recentAlerts($input: AlertsInput) {
@@ -57,55 +39,90 @@ const input = `{
   }
 `;
 
+exports.handler = async (event) => {
+  try {
+    console.log("Running Forta-Discord Agent...");
+    // Create a new client instance
+    const client = new Client({ intents: [Intents.FLAGS.GUILDS] });
+
+    // When the client is ready, run this code (only once)
+    client.once("ready", (client) => {
+      console.log(`Ready! Logged in as ${client.user.tag}`);
+      // client.channels.cache.get(process.env.CHANNEL_ID).send('Hello there!');
+
+      // Anonymous async function to query Forta API, and parse positive results into Discord messages
+      (async () => {
+        const forta_response = await forta_api_request();
+        parse_forta_response(forta_response, client);
+      })();
+    });
+
+    // Login to Discord with your client's token
+    client.login(process.env.TOKEN);
+    console.log("Running Forta-Discord Agent has been finished.");
+
+    const response = {
+      statusCode: 200,
+      body: JSON.stringify("The Forta-Discord Bot ran successfully"),
+    };
+    return response;
+  } catch (e) {
+    console.log("The error has been occurred while running Forta-Discord Agent.");
+    console.error(e);
+    const response = {
+      statusCode: 500,
+      body: JSON.stringify("Something went wrong"),
+    };
+    return response;
+  }
+};
+
 async function forta_api_request() {
   try {
     let resp = await axios({
       url: "https://api.forta.network/graphql",
       method: "POST",
       headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-        },
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
       data: JSON.stringify({
         query,
         variables: input,
-        })
-    })
+      }),
+    });
 
-    const alerts = resp.data.data.alerts.alerts
-    return alerts
-    
-  } catch(e) {
-    console.error(e)
+    const alerts = resp.data.data.alerts.alerts;
+    return alerts;
+  } catch (e) {
+    console.error(e);
+    throw e;
   }
 }
 
 // Parse successful Forta API query into Discord embed message
 function parse_forta_response(forta_response, client) {
-	if ( forta_response.length > 0 ) {
-		console.log(forta_response.length + " NEW FORTA ALERTS!")
+  if (forta_response.length > 0) {
+    console.log(forta_response.length + " NEW FORTA ALERTS!");
 
-		forta_response.forEach(element => {
-		  const alert_description = element.name
-		  const alert_tx_hash = element.source.transactionHash
-		  const severity = element.severity
+    forta_response.forEach((element) => {
+      const alert_description = element.name;
+      const alert_tx_hash = element.source.transactionHash;
+      const severity = element.severity;
 
-		  const embed = new MessageEmbed()
-		    .setTitle(`${severity} ALERT`)
-		    .setDescription(`${alert_description}`)
-		    .setURL(`https://etherscan.io/tx/${alert_tx_hash}`)
-		    .setThumbnail('https://forta.org/assets/img/forta_white.png')
-		    .setColor("#ff0000")
-		    .setTimestamp()
-		    .addFields(
-			    { name: '\u200B', value: `https://etherscan.io/tx/${alert_tx_hash}` },
-		    )
+      const embed = new MessageEmbed()
+        .setTitle(`${severity} ALERT`)
+        .setDescription(`${alert_description}`)
+        .setURL(`https://etherscan.io/tx/${alert_tx_hash}`)
+        .setThumbnail("https://forta.org/assets/img/forta_white.png")
+        .setColor("#ff0000")
+        .setTimestamp()
+        .addFields({ name: "\u200B", value: `https://etherscan.io/tx/${alert_tx_hash}` });
 
-		  client.channels.cache.get(process.env.CHANNEL_ID).send({ embeds: [embed] })
-		});
-		
-	} else {
-		// client.channels.cache.get(process.env.CHANNEL_ID).send("NO NEW FORTA ALERTS!")
-		console.log("NO NEW FORTA ALERTS")
-	}
+      client.channels.cache.get(process.env.CHANNEL_ID).send({ embeds: [embed] });
+    });
+  } else {
+    // client.channels.cache.get(process.env.CHANNEL_ID).send("NO NEW FORTA ALERTS!")
+    console.log("NO NEW FORTA ALERTS");
+  }
 }
