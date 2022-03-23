@@ -6,4 +6,4 @@ This script is intended to be run every 5 minutes with `node .`
 - This will query the Forta API for the last 5 minutes of alerts
 - If there is a new Forta alert, the Forta Bot will post a new message in the #forta-alerts channel in the Solace Discord
 
-![](https://github.com/solace-fi/solace-forta-discord-bot/blob/main/forta_alert_example.png)
+<img src="https://github.com/solace-fi/solace-forta-discord-bot/blob/main/forta_alert_example.png" alt="discord-alerts" width="400"/>
