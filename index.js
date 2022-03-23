@@ -58,22 +58,23 @@ const input = `{
 `;
 
 async function forta_api_request() {
-	try {
-        let resp = await axios({
-            url: "https://api.forta.network/graphql",
-            method: "POST",
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-            },
-            data: JSON.stringify({
-                query,
-                variables: input,
-            })
+  try {
+    let resp = await axios({
+      url: "https://api.forta.network/graphql",
+      method: "POST",
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        },
+      data: JSON.stringify({
+        query,
+        variables: input,
         })
+    })
 
-        const alerts = resp.data.data.alerts.alerts
-		return alerts
+    const alerts = resp.data.data.alerts.alerts
+    return alerts
+    
     } catch(e) {
         console.error(e)
     }
