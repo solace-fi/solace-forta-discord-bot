@@ -18,8 +18,13 @@ exports.handler = async (event) => {
         console.log(`Ready! Logged in as ${client.user.tag}`);
 
         try {
-          const forta_response = await forta_api_request();
-          await parse_forta_response(forta_response, client);
+          // Get Eth mainnet alerts
+          const forta_response_mainnet = await forta_api_request(input_mainnet);
+          await parse_forta_response(forta_response_mainnet, client);
+
+          // Get Polygon mainnet alerts
+          const forta_response_polygon = await forta_api_request(input_polygon);
+          await parse_forta_response(forta_response_polygon, client);
 
           const response = {
             statusCode: 200,
@@ -51,7 +56,7 @@ exports.handler = async (event) => {
   }
 };
 
-async function forta_api_request() {
+async function forta_api_request(input) {
   let resp = await axios({
     url: "https://api.forta.network/graphql",
     method: "POST",
@@ -112,7 +117,7 @@ const query = `query recentAlerts($input: AlertsInput) {
 
 // TEST INPUT VARIABLES FOR BALANCER FORTA AGENT
 
-// const input = `{
+// const input_mainnet = `{
 //   "input": {
 //     "first": 5,
 //     "agents": ["0x324e694b557ed964895179ef10d7ec3b730ca6b7c1f360bbf1017bf9be544bac"],
@@ -123,12 +128,22 @@ const query = `query recentAlerts($input: AlertsInput) {
 
 // INPUT VARIABLES FOR SOLACE FORTA AGENTS
 
-const input = `{
+const input_mainnet = `{
     "input": {
       "first": 10,
-      "agents": ["0x143f7fd87abb8aff430bdf0a5d94ce8da09159c2fc509f72f6a34838eb9bc15d", "0xda27257407055ba19ddf476e199ba03ff10d6a6ac140c0495e2c487cddbbe6ee", "0x407cf0397de5fc49f8e1329b556dcc5b91286d66532a8ecd979214d7cbc3c276", "0x022eb176480a2cd02ef5cb928a48fce47578afa79a9a7d861c7d22ff8426aee9", "0x7d631d5f2c51d939b6d38cee614c535da1d84606fdf46bd75973099ddc251f07"],
+      "agents": ["0x143f7fd87abb8aff430bdf0a5d94ce8da09159c2fc509f72f6a34838eb9bc15d", "0xda27257407055ba19ddf476e199ba03ff10d6a6ac140c0495e2c487cddbbe6ee", "0x407cf0397de5fc49f8e1329b556dcc5b91286d66532a8ecd979214d7cbc3c276", "0x022eb176480a2cd02ef5cb928a48fce47578afa79a9a7d861c7d22ff8426aee9", "0x7d631d5f2c51d939b6d38cee614c535da1d84606fdf46bd75973099ddc251f07","0x4a1cd614f1b4783a3a4d2c8679323cd6e58bc3a080ee22cb23b6074ca40f2cd0"],
       "createdSince": 320,
       "chainId": 1
+    }
+  }
+`;
+
+const input_polygon = `{
+    "input": {
+      "first": 10,
+      "agents": ["0x143f7fd87abb8aff430bdf0a5d94ce8da09159c2fc509f72f6a34838eb9bc15d", "0xda27257407055ba19ddf476e199ba03ff10d6a6ac140c0495e2c487cddbbe6ee", "0x407cf0397de5fc49f8e1329b556dcc5b91286d66532a8ecd979214d7cbc3c276", "0x022eb176480a2cd02ef5cb928a48fce47578afa79a9a7d861c7d22ff8426aee9", "0x7d631d5f2c51d939b6d38cee614c535da1d84606fdf46bd75973099ddc251f07","0x4a1cd614f1b4783a3a4d2c8679323cd6e58bc3a080ee22cb23b6074ca40f2cd0"],
+      "createdSince": 320,
+      "chainId": 137
     }
   }
 `;
